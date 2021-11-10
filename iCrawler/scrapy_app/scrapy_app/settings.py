@@ -25,8 +25,8 @@ django.setup()
 
 BOT_NAME = 'scrapy_app'
 
-SPIDER_MODULES = ['scrapy_app.spiders']
-NEWSPIDER_MODULE = 'scrapy_app.spiders'
+SPIDER_MODULES = ['scrapy_app.scrapy_app.spiders']
+NEWSPIDER_MODULE = 'scrapy_app.scrapy_app.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'scrapy_app (+http://www.yourdomain.com)'
@@ -78,7 +78,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapy_app.pipelines.SrapyAppPipeline': 300,
+    'scrapy_app.scrapy_app.pipelines.SrapyAppPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

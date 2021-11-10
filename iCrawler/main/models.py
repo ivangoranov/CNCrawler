@@ -14,11 +14,11 @@ class ContractNotice(models.Model):
 
     # noinspection PyUnresolvedReferences
     def __str__(self):
-        return self.name
+        return f"{self.__class__.__name__} {self.notice_number}"
 
     # noinspection PyUnresolvedReferences
     def __unicode__(self):
-        return self.name
+        return f"{self.__class__.__name__} {self.notice_number}"
 
 
 class Profile(models.Model):

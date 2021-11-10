@@ -1,7 +1,10 @@
 import scrapy
 import json
+from pydoc import locate
 from datetime import datetime, date
 from scrapy import Request
+
+scraped_item = locate('scrapy_app.scrapy_app.items.ContractNoticeScrapyItem')
 
 
 class ContractNoticesSpider(scrapy.Spider):
@@ -53,10 +56,10 @@ class ContractNoticesSpider(scrapy.Spider):
 
     def parse(self, response, **kwargs):
         json_response = json.loads(response.text)
-        items = ContractNoticeScraperItem()
+        items = scraped_item()
         for item in json_response['items']:
-            items['date'] = str(datetime.strptime(item['noticeStateDate'].split('T')[0].replace('-', ':'),
-                                                  '%Y:%m:%d').date())
+            items['date'] = datetime.strptime(item['noticeStateDate'].split('T')[0].replace('-', ':'),
+                                                  '%Y:%m:%d').date()
             items['notice_number'] = item['noticeNo']
             items['tender_name'] = item['contractTitle']
             items['procedure_state'] = item['sysProcedureState']['text']

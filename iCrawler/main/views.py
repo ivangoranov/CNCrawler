@@ -57,178 +57,18 @@ class ContractNoticeViewSet(viewsets.ModelViewSet):
 
 class ContractNoticetListView(ListView):
     model = ContractNotice
-    template_name = 'track/home.html'  # <app>/<model>_<viewtype>.html ...django searches for this covention template
+    template_name = 'all'  # <app>/<model>_<viewtype>.html ...django searches for this covention template
 
     context_object_name = 'contract-notices'  # i dont understand where we defined this 'posts'...eariler home() was being called..there
     # 'posts' was defined but now when we give route as blog/ it will come diretly to postview class
     # we never defining  'posts':Post.objects.all(),.....but still it works
     ordering = ['-date']
-    paginate_by = 1  # how manay pages you want to show on home page
-
-
-class ContractNoticeCreateView(LoginRequiredMixin, CreateView):
-    model = ContractNotice
-
-    fields = ['date']
-    #fields = ['date', 'notice_number', 'tender_name', 'procedure_state',
-    #          'contract_type', 'type_of_procurement', 'estimated_value']
-    # noinspection PyUnresolvedReferences
-    context = {
-
-        'products': ContractNotice.objects.all(),
-        'title': 'Home'
-
-    }
-
-    #def form_valid(self, form):
-    #    f = self.new_product(form)
-    #    if f == 1:
-    #        messages.success(
-    #            self.request,
-    #            'Product Added successfully! We will notify you via email when price drop under your desire price',
-    #        )
-#
-    #        return HttpResponseRedirect(reverse('user-products', args=[self.request.user.username]))
-    #    if f == 0:
-    #        messages.warning(
-    #            self.request,
-    #            "Invalid URL or couldn't find proper price of product..try again",
-    #        )
-#
-    #        return HttpResponseRedirect(reverse('user-products', args=[self.request.user.username]))
-#
-    #def new_product(self, form):
-    #    print('attempting to insert new records')
-    #    import time
-#
-    #    import sys
-    #    # this path will remain in sys.path untill this program terminated
-    #    sys.path.append("/app")
-    #    sys.path.append("/app/price_scraper")  # in heroku we have base dir as /app
-#
-    #    # this path will be used in price_scraper.items,
-    #    from data_collection.data_collection.spiders import contract_notices_spider
-#
-    #    from scrapy import signals
-    #    from scrapy.crawler import Crawler
-#
-    #    from crochet import setup
-#
-    #    setup()
-    #    print('hello' * 10)
-#
-    #    if form == -1:
-#
-    #        url = self.product_url
-#
-    #        settings = {
-    #            'url': url,
-    #            'USER_AGENT': 'price_scraper (+http://www.yourdomain.com)',
-    #            'timepass': 'kya chal raha hai bhai'
-    #        }
-#
-    #        def spider_closing(spider):
-    #            """Activates on spider closed signal"""
-    #            print("Spiderclose" * 10)
-    #            # reactor.stop()
-#
-    #        crawler = Crawler(contract_notices_spider.contract_notices, settings)
-#
-    #        crawler.signals.connect(spider_closing, signal=signals.spider_closed)
-#
-    #        p_obj = self
-#
-    #        crawler.crawl(product_object=p_obj, check=1)
-#
-    #        while True:
-    #            time.sleep(1)
-    #            # print(crawler.stats.get_stats())
-    #            try:
-    #                fr = crawler.stats.get_stats()['finish_reason']
-    #                if fr == 'finished':
-    #                    break
-    #            except:
-    #                pass
-#
-#
-#
-    #    else:
-    #        print("we are in else part")
-    #        url = self.request.POST['product_url']
-    #        d_price = self.request.POST['desire_price']
-#
-    #        settings = {
-    #            'url': url,
-    #            'USER_AGENT': 'price_scraper (+http://www.yourdomain.com)',
-    #            'timepass': 'kya chal raha hai bhai'
-    #        }
-#
-    #        def spider_closing(spider):
-    #            """Activates on spider closed signal"""
-    #            print("Spiderclose" * 10)
-#
-    #        def if_spyder_open(spider):
-    #            print("spyderOpen__" * 10)
-#
-    #        u = self.request.user
-    #        ulen1 = len(u.product_set.all())
-#
-    #        crawler = Crawler(contract_notices_spider.contract_notices, settings)
-#
-    #        crawler.signals.connect(spider_closing, signal=signals.spider_closed)
-    #        crawler.signals.connect(if_spyder_open, signal=signals.spider_opened)
-#
-    #        crawler.crawl(url=url, d_price=d_price, author=self.request.user, check=0, timepass='whats up..!!')
-#
-    #        while True:
-    #            print(crawler.stats.get_stats())
-    #            time.sleep(1)
-    #            try:
-    #                fr = crawler.stats.get_stats()['finish_reason']
-    #                if fr == 'finished':
-    #                    break
-    #            except:
-    #                pass
-    #        ulen2 = len(u.product_set.all())
-    #        if ulen2 > ulen1:
-    #            return 1
-    #        elif ulen2 == ulen1:
-    #            return 0
-
-# todo:
-#class ContractNoticeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-#    model = ContractNotice
-#    fields = ['date', 'notice_number', 'tender_name', 'procedure_state',
-#              'contract_type', 'type_of_procurement', 'estimated_value']
-#    template_name = 'track/update_form.html'
-#
-#    def form_valid(self, form):
-#        messages.success(self.request, f'Updated successfully!')
-#        form.instance.author = self.request.user
-#        return super().form_valid(form)
-#
-#    def test_func(self):  # this fucntion restric user to update others post..he can update only his own post not others
-#        # UserPassesTestMixin thats why we write this
-#        ContractNotice = self.get_object()
-#        if self.request.user == product.author:
-#            return True
-#        return False
-
-
-class ContractNoticeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = ContractNotice
-    success_url = '/'
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False
+    paginate_by = 5  # how manay pages you want to show on home page
 
 
 class UserContractNoticeListView(ListView):  # when we click on title tis executed
     model = ContractNotice
-    template_name = 'track/user_products.html'  #
+    # template_name = 'track/user_products.html'  #
     context_object_name = 'products'
     paginate_by = 5
 
@@ -338,12 +178,12 @@ def crawl(request):
             'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         }
 
-        # Here we schedule a new crawling task from scrapyd.
+        # Here we schedule a new crawling task from scrapyd.as
         # Notice that settings is a special argument name.
         # But we can pass other arguments, though.
         # This returns a ID which belongs and will be belong to this task
         # We are goint to use that to check task's status.
-        task = scrapyd.schedule('default', 'icrawler',
+        task = scrapyd.schedule('scrapy_app', 'cncrawler',
                                 settings=settings, url=url, domain=domain)
 
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started'})
