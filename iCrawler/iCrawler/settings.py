@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_swagger',
+    'django_bootstrap5',
     'django_registration',
     'main.apps.MainConfig',
     'scrapy_app',

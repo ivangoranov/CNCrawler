@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
+from rest_framework import routers
+from django.contrib.auth import views as dcav
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

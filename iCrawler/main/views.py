@@ -7,18 +7,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.core.validators import URLValidator
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import (ListView, CreateView, DeleteView)
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scrapyd_api import ScrapydAPI
 
-from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm
+from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm, UserLogin
+from django.contrib.auth.forms import AuthenticationForm
 from .models import ContractNotice, Profile
 # Create your views here.
 from .serializers import ContractNoticeSerializer, ProfileSerializer
@@ -26,6 +29,22 @@ from .serializers import ContractNoticeSerializer, ProfileSerializer
 
 def index(request):
     return render(request, 'index.html')
+
+
+def login(request):
+    return render()
+
+
+def list(request):
+    return render(request, 'list.html')  # title is optional
+
+
+def search(request):
+    return render(request, 'search.html')
+
+
+def get_by_id(request):
+    return render(request, 'get_by_id.html')
 
 
 def about(request):
@@ -36,46 +55,50 @@ def first_view(request):
     return render(request, 'track/first_view.html')
 
 
-def why(request):
-    return render(request, 'track/why.html')
+@api_view(['GET'])
+def listing(request):
+    try:
+        CNList = ContractNotice.objects.all()
+        paginator = Paginator(CNList, 25)  # Show 25 contacts per page.
 
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'list.html', {'page_obj': page_obj})
+    except CNList.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-def benefits(request):
-    return render(request, 'track/benefits.html')
-
-
-def announce(request):
-    return render(request, 'track/announcements.html')
 
 
 # Create your views here.
+
+
 class ContractNoticeViewSet(viewsets.ModelViewSet):
     # noinspection PyUnresolvedReferences
     queryset = ContractNotice.objects.all()
     serializer_class = ContractNoticeSerializer
 
 
+@login_required
 class ContractNoticetListView(ListView):
+    paginate_by = 10
     model = ContractNotice
-    template_name = 'all'  # <app>/<model>_<viewtype>.html ...django searches for this covention template
+    #template_name = 'list.html'  # <app>/<model>_<viewtype>.html ...django searches for this covention template
 
-    context_object_name = 'contract-notices'  # i dont understand where we defined this 'posts'...eariler home() was being called..there
+    # context_object_name = 'posts'  # i dont understand where we defined this 'posts'...eariler home() was being called..there
     # 'posts' was defined but now when we give route as blog/ it will come diretly to postview class
     # we never defining  'posts':Post.objects.all(),.....but still it works
     ordering = ['-date']
-    paginate_by = 5  # how manay pages you want to show on home page
 
 
-class UserContractNoticeListView(ListView):  # when we click on title tis executed
+class ContractNoticeByDayListView(ListView):  # when we click on title tis executed
     model = ContractNotice
     # template_name = 'track/user_products.html'  #
-    context_object_name = 'products'
-    paginate_by = 5
+    # context_object_name = 'products'
+    paginate_by = 10
 
     def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
         # noinspection PyUnresolvedReferences
-        return ContractNotice.objects.filter(author=user).order_by('-date_posted')
+        return ContractNotice.objects.filter(author=self.kwargs.get('date')).order_by('-date_posted')
 
 
 def register(request):
@@ -93,7 +116,7 @@ def register(request):
         'form': form
 
     }
-    return render(request, 'users/register.html', myform)
+    return render(request, 'registration/registration_form.html', myform)
 
 
 @login_required
@@ -139,7 +162,7 @@ class ProfileList(APIView):
 
 
 # connect scrapyd service
-# noinspection PyRedeclaration
+# noinspection PyRedeclaration0
 scrapyd = ScrapydAPI('http://localhost:6800')
 
 

@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -14,11 +16,11 @@ class ContractNotice(models.Model):
 
     # noinspection PyUnresolvedReferences
     def __str__(self):
-        return f"{self.__class__.__name__} {self.notice_number}"
+        return f"{self.date} {self.notice_number}"
 
     # noinspection PyUnresolvedReferences
     def __unicode__(self):
-        return f"{self.__class__.__name__} {self.notice_number}"
+        return f"{datetime.strftime(str(self.date))} {self.notice_number}"
 
 
 class Profile(models.Model):
