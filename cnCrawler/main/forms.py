@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Profile
+from .models import ContractNotice
 
 
 class UserRegisterForm(UserCreationForm):
@@ -22,12 +22,15 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email']
 
 
-class ProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['email']
-
-
 class UserLogin(AuthenticationForm):
     username = forms.TextInput()
     password = forms.PasswordInput()
+
+
+class SearchByDay(forms.ModelForm):
+    date = forms.DateField()
+
+    class Meta:
+        model = ContractNotice
+        fields = ['id', 'date']
+
