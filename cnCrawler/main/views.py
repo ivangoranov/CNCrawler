@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 from uuid import uuid4
 
+import rest_framework.pagination
 import scrapyd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,94 +12,27 @@ from django.core.paginator import Paginator
 from django.core.validators import URLValidator
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import (ListView, CreateView, DeleteView)
-from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
+from rest_framework import viewsets, status, mixins
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from scrapyd_api import ScrapydAPI
 
-from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm, UserLogin
+from .forms import UserUpdateForm, UserRegisterForm, UserLogin
 from django.contrib.auth.forms import AuthenticationForm
-from .models import ContractNotice, Profile
+from .models import ContractNotice
 # Create your views here.
-from .serializers import ContractNoticeSerializer, ProfileSerializer
-
-
-def index(request):
-    return render(request, 'index.html')
-
-
-def login(request):
-    return render()
-
-
-def list(request):
-    return render(request, 'list.html')  # title is optional
-
-
-def search(request):
-    return render(request, 'search.html')
-
-
-def get_by_id(request):
-    return render(request, 'get_by_id.html')
-
-
-def about(request):
-    return render(request, 'track/about.html', {'title': 'about '})  # title is optional
-
-
-def first_view(request):
-    return render(request, 'track/first_view.html')
-
-
-@api_view(['GET'])
-def listing(request):
-    try:
-        CNList = ContractNotice.objects.all()
-        paginator = Paginator(CNList, 25)  # Show 25 contacts per page.
-
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        return render(request, 'list.html', {'page_obj': page_obj})
-    except CNList.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-
-# Create your views here.
-
-
-class ContractNoticeViewSet(viewsets.ModelViewSet):
-    # noinspection PyUnresolvedReferences
-    queryset = ContractNotice.objects.all()
-    serializer_class = ContractNoticeSerializer
+from .serializers import ContractNoticeSerializer
 
 
 @login_required
-class ContractNoticetListView(ListView):
-    paginate_by = 10
-    model = ContractNotice
-    #template_name = 'list.html'  # <app>/<model>_<viewtype>.html ...django searches for this covention template
-
-    # context_object_name = 'posts'  # i dont understand where we defined this 'posts'...eariler home() was being called..there
-    # 'posts' was defined but now when we give route as blog/ it will come diretly to postview class
-    # we never defining  'posts':Post.objects.all(),.....but still it works
-    ordering = ['-date']
-
-
-class ContractNoticeByDayListView(ListView):  # when we click on title tis executed
-    model = ContractNotice
-    # template_name = 'track/user_products.html'  #
-    # context_object_name = 'products'
-    paginate_by = 10
-
-    def get_queryset(self):
-        # noinspection PyUnresolvedReferences
-        return ContractNotice.objects.filter(author=self.kwargs.get('date')).order_by('-date_posted')
+def index(request):
+    return render(request, 'index.html', {'title': 'Contract Tender Notices ScraperAPI'})
 
 
 def register(request):
@@ -119,46 +53,38 @@ def register(request):
     return render(request, 'registration/registration_form.html', myform)
 
 
-@login_required
-def profile(request):
-    if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST,
-                                   request.FILES,
-                                   instance=request.user.profile)
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, 'Your account has been updated!')
-            return redirect('profile')
-
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)
-
-    context = {
-        'u_form': u_form,
-        'p_form': p_form,
-
+@api_view(['GET'])
+def apiOverview(request):
+    api_urls = {
+        'List': 'notices-list',
+        'Search': 'search-by-date/<str:date>/',
+        'Detail': 'detail-by-id/<str:pk>/',
     }
 
-    return render(request, 'users/profile.html', context)
+    return Response(api_urls)
+
+rest_framework.pagination.LimitOffsetPagination.max_limit=10
+@api_view(['GET'])
+def noticeList(request):
+    CNList = ContractNotice.objects.all()
+    serializer = ContractNoticeSerializer(CNList, many=True)
+
+    return Response(serializer.data)
 
 
-class ContractNoticeList(APIView):
-    def get(self, request, format=None):
-        # noinspection PyUnresolvedReferences
-        all_notices = ContractNotice.objects.all()
-        serializers = ContractNoticeSerializer(all_notices, many=True)
-        return Response(serializers.data)
+@api_view(['GET'])
+def noticeSearch(request, date):
+    CNList = ContractNotice.objects.filter(date=date)
+    serializer = ContractNoticeSerializer(CNList, many=True)
 
+    return Response(serializer.data)
 
-class ProfileList(APIView):
-    def get(self, request, format=None):
-        # noinspection PyUnresolvedReferences
-        all_profiles = Profile.objects.all()
-        serializers = ProfileSerializer(all_profiles, many=True)
-        return Response(serializers.data)
+@api_view(['GET'])
+def getNoticeListByID(request, pk):
+    CNList = ContractNotice.objects.get(id=pk)
+    serializer = ContractNoticeSerializer(CNList, many=True)
+
+    return Response(serializer.data)
 
 
 # connect scrapyd service

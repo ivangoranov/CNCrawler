@@ -21,12 +21,3 @@ class ContractNotice(models.Model):
     # noinspection PyUnresolvedReferences
     def __unicode__(self):
         return f"{datetime.strftime(str(self.date))} {self.notice_number}"
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField()
-
-    # noinspection PyUnresolvedReferences
-    def __str__(self):
-        return f'{self.user.username} Profile'
