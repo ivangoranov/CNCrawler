@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "notice",
+  "description": "Tender notice item",
+  "type": "object",
+  "properties":{
+    "date": {
+      "description": "Date of contract for respective notice",
+      "type": "string"
+    },
+    "notice_number": {
+      "description": "Name for respective notice",
+      "type": "string"
+    },
+    "tender_name": {
+      "description": "Name for respective notice",
+      "type": "string"
+    },
+    "contract_type": {
+      "description": "Type of contract for respective notice",
+      "type": "string"
+    },
+    "procedure_state": {
+      "description": "Procedure state for respective notice",
+      "type": "string"
+    },
+    "type_of_procurement": {
+      "description": "Type of procurement of respective notice",
+      "type": "string"
+    },
+    "estimated_value": {
+      "description": "The estimated value of contract for respective notice",
+      "type": "number"
+    }
+  },
+  "required": ["date", "notice_number", "tender_name", "contract_type", "procedure_state", "type_of_procurement", "estimated_value"]
+}
+

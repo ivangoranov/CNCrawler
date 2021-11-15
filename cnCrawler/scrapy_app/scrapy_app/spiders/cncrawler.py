@@ -58,8 +58,8 @@ class ContractNoticesSpider(scrapy.Spider):
         json_response = json.loads(response.text)
         items = scraped_item()
         for item in json_response['items']:
-            items['date'] = datetime.strptime(item['noticeStateDate'].split('T')[0].replace('-', ':'),
-                                                  '%Y:%m:%d').date()
+            items['date'] = str(datetime.strptime(item['noticeStateDate'].split('T')[0].replace('-', ':'),
+                                                  '%Y:%m:%d').date())
             items['notice_number'] = item['noticeNo']
             items['tender_name'] = item['contractTitle']
             items['procedure_state'] = item['sysProcedureState']['text']

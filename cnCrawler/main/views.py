@@ -81,8 +81,8 @@ def noticeSearch(request, date):
 
 @api_view(['GET'])
 def getNoticeListByID(request, pk):
-    CNList = ContractNotice.objects.get(id=pk)
-    serializer = ContractNoticeSerializer(CNList, many=True)
+    CNDetail = ContractNotice.objects.get(id=pk)
+    serializer = ContractNoticeSerializer(CNDetail)
 
     return Response(serializer.data)
 

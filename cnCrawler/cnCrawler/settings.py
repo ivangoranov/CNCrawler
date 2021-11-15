@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'rest_framework',
-    'rest_framework_swagger',
+    'rest_swagger',
     'django_bootstrap5',
     'django_registration',
     'main.apps.MainConfig',

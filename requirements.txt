@@ -5,3 +5,8 @@ crochet
 scrapyd~=1.2.1
 python-scrapyd-api~=2.1.2
 django-debug-toolbar~=3.2.2
+drf-yasg
+django-bootstrap5
+django-registration
+rest-swagger
+scrapy-djangoitem
